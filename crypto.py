@@ -9,7 +9,7 @@ class crypto():
         self.user = user
 
     def creatVolume(self):
-        p  = Popen(["fallocate", "-l", "10M", "/home/" + self.user + '/' + self.user + "file", stdin=PIPE, stderr=STDOUT])
+        p  = Popen(["fallocate", "-l", "10M", "/home/" + self.user + '/' + self.user + "file", stdout=PIPE,stdin=PIPE, stderr=STDOUT])
         p = Popen(["cryptsetup", "-y", "luksFormat", "/home/" + self.user + '/' +self.user + "file", stdin=PIPE, stderr=STDOUT])
         p.communicate(input=b'YES\n')
         p = Popen(["sudo", "cryptsetup", "luksOpen", "/home/" + self.user + '/' + self.user + "file", self.user + "volume", stdin=PIPE, stderr=STDOUT])
