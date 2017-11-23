@@ -1,29 +1,29 @@
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import call
 import os
 
 
 
 class crypto():
-    def __init__(self, dirc, user):
+    def __init__(self, dirc, user, passwd):
         self.dir = dirc
         self.user = user
+        self.passwd = passwd
 
     def creatVolume(self):
-        p  = Popen(["fallocate", "-l", "10M", "/home/" + self.user + '/' + self.user + "file"], stdout=STDOUT, stdin=PIPE, stderr=STDERR)
-        p = Popen(["cryptsetup", "-y", "luksFormat", "/home/" + self.user + '/' +self.user + "file"], stdout=STDOUT, stdin=PIPE, stderr=STDERR)
-        p.communicate(input=b'YES\n')
-        p = Popen(["sudo", "cryptsetup", "luksOpen", "/home/" + self.user + '/' + self.user + "file", self.user + "volume"], stdout=STDOUT, stdin=PIPE, stderr=STDERR)
-        p = Popen(["sudo", "mkfs.ext4", "/dev/mapper/" + self.user  + "volume"], stdout=STDOUT, stdin=PIPE, stderr=STDERR)
+        call("fallocate -l 10M /home/" + self.user + '/' + self.user + "file", shell=True)
+        call("echo " + self.passwd + " | cryptsetup -q luksFormat /home/" + self.user + '/' +self.user + "file", shell=True)
+        call("echo " + self.passwd + " | sudo cryptsetup luksOpen /home/" + self.user + '/' + self.user + "file" + " " + self.user + "volume", shell=True)
+        call("sudo mkfs.ext4 /dev/mapper/" + self.user  + "volume", shell=True)
 
 
     def openVolume(self):
-        p = Popen(["sudo", "cryptsetup", "luksOpen", "/home/" + self.user + '/' + self.user + "file", self.user + "volume"],stdout=STDOUT, stdin=PIPE, stderr=STDERR)
-        p = Popen(["sudo", "mount", "/dev/mapper/" + self.user + "volume", "/home/" + self.user + "test" + self.user + "file"], stdout=STDOUT,stdin=PIPE, stderr=STDERR)
+        call("sudo cryptsetup luksOpen /home/" + self.user + '/' + self.user + "file" + " " + self.user + "volume", shell=True)
+        call("sudo mount /dev/mapper/" + self.user + "volume" + " " + "/home/" + self.user + "test" + self.user + "file", shell=True)
 
     def closeVolume(self):
-        p = Popen(["sudo", "umount", "/home/" + self.user + "test" + self.user + "file"], stdout=STDOUT,stdin=PIPE, stderr=STDERR)
-        p = Popen(["sudo", "cryptsetup", "luksOpen", self.user + "volume"], stdout=STDOUT,stdin=PIPE, stderr=STDERR)
+        call("sudo umount /home/" + self.user + "test" + self.user + "file"], shell=True)
+        call("sudo cryptsetup luksOpen" + " " + self.user + "volume", shell=True)
 
 if __name__ == "__main__":
-    c = crypto("test", "guillaume")
+    c = crypto("test", "guillaume", "test")
     c.creatVolume()
